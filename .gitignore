@@ -51,6 +51,7 @@ volumes
 *.env
 *__pycache__/
 test.py
+/test
 
 logs.txt
 locks

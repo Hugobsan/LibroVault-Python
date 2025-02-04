@@ -4,6 +4,7 @@ from typing import List, Dict
 import json
 import numpy as np
 from app.services.search_service import search
+from app.core.config import config
 
 router = APIRouter()
 
@@ -11,11 +12,20 @@ class SearchRequest(BaseModel):
     query: str
     embeddings: List[Dict[str, str]]  # Lista de dicionários com 'book_id', 'page_number', 'embedding' (caminho do arquivo JSON)
 
+def normalize_embedding(embedding):
+    """ Normaliza um embedding para ter magnitude 1, se necessário """
+    norm = np.linalg.norm(embedding)
+    return (embedding / norm).tolist() if norm > 0 else embedding
+
 @router.post("/embedding/compare")
 async def search_embeddings(data: SearchRequest):
     # Criar embedding da consulta
     from app.services.embedding_service import generate_embedding
     query_embedding = generate_embedding(data.query)
+
+    # Aplicar normalização se o modelo exigir
+    if config.needs_normalization():
+        query_embedding = normalize_embedding(query_embedding)
 
     # Carregar embeddings dos arquivos informados
     document_embeddings = []
@@ -25,7 +35,13 @@ async def search_embeddings(data: SearchRequest):
         try:
             with open(emb["embedding"], "r") as f:
                 embedding_data = json.load(f)
-                document_embeddings.append(embedding_data["embedding"])
+                embedding = embedding_data["embedding"]
+                
+                # Aplicar normalização se necessário
+                if config.needs_normalization():
+                    embedding = normalize_embedding(embedding)
+
+                document_embeddings.append(embedding)
                 metadata.append({
                     "page_number": emb["page_number"],
                     "book_id": emb["book_id"],
