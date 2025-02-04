@@ -19,7 +19,7 @@ Este projeto é um **microsserviço em Python** que utiliza **FastAPI** e **Sent
 ## 📌 Requisitos
 - Python 3.8+
 - Pip
-- Virtualenv (opcional)
+- Virtualenv
 
 ---
 
@@ -56,12 +56,6 @@ Este projeto é um **microsserviço em Python** que utiliza **FastAPI** e **Sent
 ```bash
 python main.py
 ```
-
-**Rodar com Uvicorn (alternativa)**
-```bash
-uvicorn app.main:app --host 127.0.0.1 --port 5000 --reload
-```
-
 ---
 
 ## 📡 Endpoints
